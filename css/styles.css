@@ -542,19 +542,6 @@ header {
     position: relative;
 }
 
-.notes-section::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 30%;
-    height: 20px;
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    filter: blur(5px);
-}
-
 .notes-section h3 {
     margin-top: 0;
     color: #a69837;
@@ -908,9 +895,34 @@ select:focus {
 }
 
 /* =========================================
-   7. RESPONSIVE MOBILE (DISEÑO LIMPIO)
+    7. RESPONSIVE MOBILE (DISEÑO LIMPIO)
    ========================================= */
 @media (max-width: 768px) {
+
+    html, body {
+        height: auto !important; /* Permite que la página crezca */
+        min-height: 100vh;       /* Al menos el alto de la pantalla */
+        overflow-y: scroll !important; /* ¡OBLIGA al scroll vertical! */
+        overflow-x: hidden;      /* Evita scroll horizontal en la página */
+        position: static !important; /* Evita que se quede fija */
+    }
+
+    /* 2. CONTENEDORES FLUIDOS */
+    .container {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        gap: 15px;
+        height: auto !important; /* Importante: deja de limitar la altura */
+        overflow: visible !important; /* Deja que el contenido se salga */
+    }
+
+    .main-panel, .side-panel { 
+        padding-right: 0; 
+        overflow: visible !important; /* No scrollea internamente, scrollea la página */
+        height: auto !important; 
+        max-height: none !important;
+    }
 
     /* --- 1. HEADER (LOGO + BOTONES / BUSCADOR ABAJO) --- */
     header {
@@ -1062,5 +1074,50 @@ select:focus {
     .form-row {
         flex-direction: column;
         gap: 15px;
+    }
+}
+
+/* =========================================
+   8. AJUSTE DE ALERTAS (SWEETALERT) EN MÓVIL
+   ========================================= */
+@media (max-width: 768px) {
+    
+    /* Contenedor de la alerta más compacto */
+    div:where(.swal2-container) div:where(.swal2-popup) {
+        padding: 10px !important; /* Menos relleno interno */
+        width: 90% !important; /* Que no toque los bordes */
+        max-width: 350px !important; /* Ancho máximo controlado */
+    }
+
+    /* Título más chico */
+    div:where(.swal2-container) .swal2-title {
+        font-size: 1.2rem !important;
+        padding: 10px 0 !important;
+    }
+
+    /* Inputs (Login) más compactos */
+    div:where(.swal2-container) .swal2-input {
+        height: 35px !important; /* Altura reducida */
+        padding: 0 10px !important;
+        margin: 5px auto !important; /* Menos separación entre inputs */
+        font-size: 0.9rem !important;
+    }
+
+    /* Botón de confirmar más chico */
+    div:where(.swal2-container) .swal2-actions {
+        margin-top: 10px !important;
+    }
+    div:where(.swal2-container) .swal2-styled {
+        padding: 8px 20px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Checkbox "Mostrar contraseña" */
+    #showPass {
+        width: 16px !important; 
+        height: 16px !important;
+    }
+    label[for="showPass"] {
+        font-size: 0.8rem !important;
     }
 }

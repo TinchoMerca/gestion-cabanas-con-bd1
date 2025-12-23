@@ -1,5 +1,5 @@
 // ==========================================
-// 1. CONFIGURACIÓN DE FIREBASE (LA NUBE)
+// 1. CONFIGURACIÓN DE FIREBASE
 // ==========================================
 
 const firebaseConfig = {
@@ -12,61 +12,133 @@ const firebaseConfig = {
     measurementId: "G-Q5LE83PNFH"
 };
 
-// Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth(); // Inicializamos Auth
 
 // ==========================================
-// 2. VARIABLES GLOBALES
+// 2. VARIABLES Y DOM
 // ==========================================
 let currentDate = new Date();
-let bookings = []; // Ahora empieza vacío y se llena desde la nube
+let bookings = [];
 let editingBookingId = null;
 
-// Referencias al DOM
 const monthYear = document.getElementById('monthYear');
 const daysContainer = document.getElementById('daysContainer');
 const cabinFilter = document.getElementById('cabinFilter');
 
-// Configuración de alertas
 const Toast = Swal.mixin({
-    toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true,
-    didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer);
-        toast.addEventListener('mouseleave', Swal.resumeTimer);
+    toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true
+});
+
+// ==========================================
+// 3. SISTEMA DE LOGIN (SEGURIDAD)
+// ==========================================
+
+// Escuchar si el usuario entra o sale
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        // --- USUARIO LOGUEADO ---
+        console.log("Usuario conectado:", user.email);
+        iniciarApp(); // Cargar datos
+        mostrarBotonLogout();
+    } else {
+        // --- USUARIO DESCONECTADO ---
+        console.log("Nadie conectado");
+        bookings = []; // Limpiar datos de la vista
+        renderCalendar(); // Mostrar calendario vacío
+        pedirLogin(); // Mostrar ventana de login
     }
 });
 
+function pedirLogin() {
+    Swal.fire({
+        title: 'Acceso Familiar',
+        html: `
+            <input type="email" id="loginEmail" class="swal2-input" placeholder="Correo">
+            <input type="password" id="loginPass" class="swal2-input" placeholder="Contraseña">
+        `,
+        confirmButtonText: 'Entrar',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        preConfirm: () => {
+            const email = Swal.getPopup().querySelector('#loginEmail').value;
+            const password = Swal.getPopup().querySelector('#loginPass').value;
+            if (!email || !password) {
+                Swal.showValidationMessage(`Por favor ingresa usuario y contraseña`);
+            }
+            return { email: email, password: password };
+        }
+    }).then((result) => {
+        // Intentar loguear en Firebase
+        auth.signInWithEmailAndPassword(result.value.email, result.value.password)
+            .then(() => {
+                Toast.fire({ icon: 'success', title: '¡Bienvenido!' });
+            })
+            .catch((error) => {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Datos incorrectos' })
+                    .then(() => pedirLogin()); // Volver a pedir si falla
+            });
+    });
+}
+
+function cerrarSesion() {
+    auth.signOut().then(() => {
+        location.reload(); // Recargar página para limpiar todo
+    });
+}
+
+// Agregar botón de Salir en el Header dinámicamente
+function mostrarBotonLogout() {
+    const headerActions = document.querySelector('.header-actions');
+    // Evitar duplicados
+    if (document.getElementById('btnLogout')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'btnLogout';
+    btn.className = 'btn btn-outline';
+    btn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+    btn.title = "Cerrar Sesión";
+    btn.style.color = "#e74c3c";
+    btn.style.borderColor = "#e74c3c";
+    btn.onclick = cerrarSesion;
+
+    headerActions.prepend(btn);
+}
+
 // ==========================================
-// 3. CONEXIÓN EN TIEMPO REAL (ESCUCHADORES)
+// 4. LÓGICA DE DATOS (Solo arranca si hay login)
 // ==========================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Escuchar cambios en las RESERVAS
+function iniciarApp() {
+    // Escuchar cambios en la base de datos
     db.collection("reservas").onSnapshot((snapshot) => {
-        bookings = []; // Limpiamos local
+        bookings = [];
         snapshot.forEach((doc) => {
-            // Guardamos los datos y agregamos el ID real de la nube
             bookings.push({ id: doc.id, ...doc.data() });
         });
-
-        // ¡Magia! Apenas llegan los datos, redibujamos todo
         renderCalendar();
         renderBookingList();
         updateGuestHistory();
+    }, (error) => {
+        console.error("Error al leer datos:", error);
+        // Si da error de permisos, es que no está logueado
     });
 
-    // Escuchar cambios en las NOTAS
     db.collection("config").doc("notas_generales").onSnapshot((doc) => {
-        if (doc.exists) {
-            document.getElementById('notesArea').value = doc.data().contenido || "";
-        }
+        if (doc.exists) document.getElementById('notesArea').value = doc.data().contenido || "";
     });
+}
+
+// ==========================================
+// 5. CALENDARIO Y UI
+// ==========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Solo render inicial (vacío hasta que haya login)
+    renderCalendar();
 });
 
-// ==========================================
-// 4. LÓGICA DEL CALENDARIO (Visualización)
-// ==========================================
 function renderCalendar() {
     const filter = cabinFilter.value;
     currentDate.setDate(1);
@@ -89,6 +161,7 @@ function renderCalendar() {
         const isToday = dateStr === formatDate(new Date()) ? "today" : "";
         let slotsHTML = "";
 
+        // Si no hay reservas cargadas (no login), esto simplemente no mostrará nada
         const cabinsToShow = (filter === 'all') ? allCabins : [filter];
 
         cabinsToShow.forEach(cabinName => {
@@ -97,7 +170,6 @@ function renderCalendar() {
             const ongoingBooking = bookings.find(b => b.cabin === cabinName && b.start < dateStr && b.end > dateStr);
 
             if (endingBooking && startingBooking) {
-                // RECAMBIO
                 slotsHTML += `
                 <div class="booking-slot">
                     <div class="double-bar-container">
@@ -110,7 +182,6 @@ function renderCalendar() {
                     </div>
                 </div>`;
             } else {
-                // NORMAL
                 const booking = endingBooking || startingBooking || ongoingBooking;
                 if (booking) {
                     let barClass = "bar-mid";
@@ -133,25 +204,22 @@ function renderCalendar() {
                 }
             }
         });
-
         daysHTML += `<div class="day ${isToday}"><div class="day-number">${i}</div>${slotsHTML}</div>`;
     }
-
     daysContainer.innerHTML = daysHTML;
     calculateMonthlyStats();
     renderBookingList();
 }
 
-function changeMonth(direction) {
-    currentDate.setMonth(currentDate.getMonth() + direction);
-    renderCalendar();
-}
+function changeMonth(direction) { currentDate.setMonth(currentDate.getMonth() + direction); renderCalendar(); }
 
 // ==========================================
-// 5. GESTIÓN DE RESERVAS (CRUD EN LA NUBE)
+// 6. GUARDAR Y EDITAR (Protegido por Auth)
 // ==========================================
 
 function saveBooking() {
+    if (!auth.currentUser) return Swal.fire('Error', 'Debes iniciar sesión', 'error');
+
     const guest = document.getElementById('guestName').value;
     const phone = document.getElementById('guestPhone').value;
     const cabin = document.getElementById('cabinName').value;
@@ -164,56 +232,38 @@ function saveBooking() {
     if (start > end) { Swal.fire({ icon: 'error', title: 'Fechas inválidas' }); return; }
 
     const conflict = checkOverlap(cabin, start, end, editingBookingId);
-    if (conflict) {
-        Swal.fire({ icon: 'error', title: '¡Superposición!', text: `La ${cabin} ya está ocupada.` });
-        return;
-    }
+    if (conflict) { Swal.fire({ icon: 'error', title: '¡Superposición!', text: `La ${cabin} ya está ocupada.` }); return; }
 
     const nights = calculateNights(start, end);
     const total = nights * price;
+    const bookingData = { guest, phone, cabin, start, end, pricePerNight: price, status, totalPrice: total };
 
-    const bookingData = {
-        guest, phone, cabin, start, end, pricePerNight: price, status, totalPrice: total
-    };
-
-    // GUARDAR EN FIREBASE
     if (editingBookingId) {
-        // Actualizar
         db.collection("reservas").doc(editingBookingId).update(bookingData)
-            .then(() => {
-                closeModal();
-                Toast.fire({ icon: 'success', title: 'Actualizado en la nube' });
-            });
+            .then(() => { closeModal(); Toast.fire({ icon: 'success', title: 'Actualizado' }); });
     } else {
-        // Crear nuevo
         db.collection("reservas").add(bookingData)
-            .then(() => {
-                closeModal();
-                Toast.fire({ icon: 'success', title: 'Guardado en la nube' });
-            });
+            .then(() => { closeModal(); Toast.fire({ icon: 'success', title: 'Guardado' }); });
     }
-    // Nota: Ya no llamamos a renderCalendar() aquí, porque el "listener" de arriba lo hará solo.
 }
 
 function deleteFromModal() {
+    if (!auth.currentUser) return;
     if (!editingBookingId) return;
     Swal.fire({
         title: '¿Eliminar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#eb3b5a', confirmButtonText: 'Sí, borrar'
     }).then((result) => {
         if (result.isConfirmed) {
-            // BORRAR DE FIREBASE
             db.collection("reservas").doc(editingBookingId).delete()
-                .then(() => {
-                    closeModal();
-                    Toast.fire({ icon: 'success', title: 'Eliminado de la nube' });
-                });
+                .then(() => { closeModal(); Toast.fire({ icon: 'success', title: 'Eliminado' }); });
         }
     });
 }
 
-// Guardar notas en tiempo real (con un pequeño retardo para no saturar)
+// Guardar notas con debounce y verificación de usuario
 let timeoutNotas;
 document.getElementById('notesArea').addEventListener('input', (e) => {
+    if (!auth.currentUser) return;
     clearTimeout(timeoutNotas);
     timeoutNotas = setTimeout(() => {
         db.collection("config").doc("notas_generales").set({ contenido: e.target.value });
@@ -221,9 +271,8 @@ document.getElementById('notesArea').addEventListener('input', (e) => {
 });
 
 // ==========================================
-// 6. FUNCIONES AUXILIARES (Iguales)
+// 7. UTILIDADES
 // ==========================================
-
 function checkOverlap(cabin, start, end, ignoreId = null) {
     const newStart = new Date(start);
     const newEnd = new Date(end);
@@ -236,10 +285,12 @@ function checkOverlap(cabin, start, end, ignoreId = null) {
     });
 }
 
-function openModal() { editingBookingId = null; cleanForm(); document.getElementById('modalTitle').innerText = "Nueva Reserva"; document.getElementById('btnDeleteModal').style.display = 'none'; document.getElementById('bookingModal').style.display = 'flex'; }
+function openModal() {
+    if (!auth.currentUser) { pedirLogin(); return; } // Proteger botón Nueva Reserva
+    editingBookingId = null; cleanForm(); document.getElementById('modalTitle').innerText = "Nueva Reserva"; document.getElementById('btnDeleteModal').style.display = 'none'; document.getElementById('bookingModal').style.display = 'flex';
+}
 function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 window.onclick = function (e) { if (e.target == document.getElementById('bookingModal')) closeModal(); }
-
 function cleanForm() { document.getElementById('guestName').value = ""; document.getElementById('guestPhone').value = ""; document.getElementById('checkIn').value = ""; document.getElementById('checkOut').value = ""; document.getElementById('pricePerNight').value = ""; document.getElementById('totalPreview').innerText = "Total estimado: $0"; }
 
 function editBooking(id, event) {
@@ -291,7 +342,7 @@ function renderBookingList() {
                     <button class="btn" onclick="editBooking('${b.id}')"><i class="fas fa-pencil-alt" style="color:#aaa"></i></button>
                  </div>`;
     });
-    listDiv.innerHTML = html || "<p style='color:#ccc; text-align:center'>Sin reservas este mes.</p>";
+    listDiv.innerHTML = html || "<p style='color:#ccc; text-align:center'>Sin datos...</p>";
 }
 
 function searchBooking() {
@@ -310,34 +361,22 @@ function updateGuestHistory() {
     const dataList = document.getElementById('guestHistory');
     dataList.innerHTML = '';
     const guests = [...new Set(bookings.map(b => b.guest))];
-    guests.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        dataList.appendChild(option);
-    });
+    guests.forEach(name => { const option = document.createElement('option'); option.value = name; dataList.appendChild(option); });
 }
 
-// Exportar PDF (Igual que antes)
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
     const monthName = document.getElementById('monthYear').innerText;
-
     const monthlyBookings = bookings.filter(b => {
-        const start = new Date(b.start);
-        const end = new Date(b.end);
-        return (start.getMonth() === month && start.getFullYear() === year) ||
-            (end.getMonth() === month && end.getFullYear() === year) ||
-            (start < new Date(year, month, 1) && end > new Date(year, month + 1, 0));
+        const start = new Date(b.start); const end = new Date(b.end);
+        return (start.getMonth() === month && start.getFullYear() === year) || (end.getMonth() === month && end.getFullYear() === year) || (start < new Date(year, month, 1) && end > new Date(year, month + 1, 0));
     });
-
     if (monthlyBookings.length === 0) { Swal.fire({ icon: 'info', title: 'Sin datos' }); return; }
-
     const doc = new jsPDF();
     doc.setFontSize(18); doc.text("Reporte - Mis Cabañas", 14, 20);
     doc.setFontSize(12); doc.setTextColor(100); doc.text(`Período: ${monthName}`, 14, 28);
-
     const tableColumn = ["Cabaña", "Huesped", "Entrada", "Salida", "Noches", "Total", "Estado"];
     let totalMoney = 0;
     const tableRows = monthlyBookings.map(b => {
@@ -345,14 +384,12 @@ function exportToPDF() {
         let statusEsp = b.status === 'paid' ? "Pagado" : (b.status === 'deposit' ? "Señado" : "Pendiente");
         return [b.cabin, b.guest, b.start, b.end, calculateNights(b.start, b.end), `$${b.totalPrice.toLocaleString()}`, statusEsp];
     });
-
     doc.autoTable({ head: [tableColumn], body: tableRows, startY: 35, theme: 'grid', headStyles: { fillColor: [74, 105, 189] }, styles: { fontSize: 9 } });
     const finalY = doc.lastAutoTable.finalY + 10;
     doc.setFontSize(12); doc.setTextColor(0); doc.text(`Ingresos Totales: $${totalMoney.toLocaleString()}`, 14, finalY);
     doc.save(`Reporte_${monthName.replace(' ', '_')}.pdf`);
 }
 
-// Helpers puros
 function calculateTotalPreview() { const start = document.getElementById('checkIn').value; const end = document.getElementById('checkOut').value; const price = document.getElementById('pricePerNight').value; if (start && end && price) { const total = calculateNights(start, end) * price; document.getElementById('totalPreview').innerText = `Total estimado: $${total.toLocaleString()}`; } }
 function calculateNights(start, end) { const d1 = new Date(start); const d2 = new Date(end); return Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24))); }
 function formatDate(date) { return date.toISOString().split('T')[0]; }

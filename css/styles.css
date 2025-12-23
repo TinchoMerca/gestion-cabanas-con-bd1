@@ -872,19 +872,26 @@ select:focus {
     font-weight: 500;
     transition: transform 0.2s;
 }
-.alert-card:hover { transform: translateX(3px); }
+
+.alert-card:hover {
+    transform: translateX(3px);
+}
 
 /* Tipos de Alerta */
 .alert-in {
-    background: #e8f5e9; /* Fondo verde suave */
+    background: #e8f5e9;
+    /* Fondo verde suave */
     border-left: 5px solid #2ecc71;
     color: #27ae60;
 }
+
 .alert-out {
-    background: #ffebee; /* Fondo rojo suave */
+    background: #ffebee;
+    /* Fondo rojo suave */
     border-left: 5px solid #ff7675;
     color: #d63031;
 }
+
 .alert-empty {
     background: #f1f2f6;
     color: #a4b0be;
@@ -896,122 +903,164 @@ select:focus {
 
 /* Reducir un poco la altura de las notas para que quepan los avisos */
 .notes-section {
-    height: 250px; /* Antes era 350px */
+    height: 250px;
+    /* Antes era 350px */
 }
 
 /* =========================================
-    7. RESPONSIVE MOBILE
+   7. RESPONSIVE MOBILE (DISEÑO LIMPIO)
    ========================================= */
 @media (max-width: 768px) {
-    body {
-        height: auto;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
 
+    /* --- 1. HEADER (LOGO + BOTONES / BUSCADOR ABAJO) --- */
     header {
-        flex-direction: column;
-        padding: 15px;
-        gap: 15px;
-        border-bottom-left-radius: 20px;
-        border-bottom-right-radius: 20px;
-        position: static;
-        /* En mobile a veces es mejor static si molesta */
-    }
-
-    .brand {
-        flex-direction: row;
-        gap: 10px;
-    }
-
-    .header-actions {
-        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        /* Permite que los elementos bajen si no entran */
         justify-content: space-between;
+        /* Separa Logo (Izq) de Botones (Der) */
+        align-items: center;
+        padding: 10px 15px;
+        gap: 10px;
+        height: auto;
+        box-shadow: none;
+        /* Sin sombra en el header */
+        border-bottom: 1px solid #eee;
+        position: relative;
+    }
+
+    /* Izquierda: Logo */
+    .brand {
+        order: 1;
+        width: auto;
+        /* Ocupa solo lo necesario */
+        flex-direction: row;
+        margin: 0;
+        gap: 8px;
+    }
+
+    .brand i {
+        font-size: 1.4rem;
+        margin: 0;
+    }
+
+    .brand-text h1 {
+        font-size: 1rem;
+    }
+
+    .brand-text p {
+        display: none;
+    }
+
+    /* Ocultamos subtítulo para ahorrar espacio */
+
+    /* Derecha: Botones (Logout y PDF) */
+    .header-actions {
+        order: 2;
+        width: auto;
+        gap: 8px;
     }
 
     .header-actions .btn-outline {
-        flex: 1;
-        height: 45px;
+        width: 35px;
+        height: 35px;
+        /* Botones más compactos */
+        font-size: 1rem;
+        flex: none;
+        /* No se estiran */
     }
 
+    /* Abajo: Buscador (Lupa) */
     .search-bar {
+        order: 3;
         width: 100%;
-        border-radius: 15px;
+        /* Ocupa todo el ancho */
+        margin-top: 5px;
+        padding: 8px 15px;
+        /* Más chico, no muy grande */
+        height: 40px;
+        background-color: #f5f5f5;
     }
 
-    .search-bar:focus-within {
-        width: 100%;
+    /* --- 2. ELIMINAR SOMBRAS ("FLAT DESIGN") --- */
+    /* Quitamos sombras de tarjetas para que se vea limpio */
+    .stat-card,
+    .calendar-section,
+    .notes-section,
+    .alerts-section,
+    .booking-list-item {
+        box-shadow: none !important;
+        border: 1px solid #eee;
+        /* Borde suave en vez de sombra */
     }
 
+    /* --- 3. MODAL (PANTALLA BLANCA COMPLETA - SIN SOMBRA NEGRA) --- */
+    .modal {
+        background-color: #ffffff;
+        /* Fondo BLANCO sólido (Adiós sombra negra) */
+        z-index: 9999;
+        align-items: flex-start;
+        /* Empieza arriba */
+        padding: 0;
+    }
+
+    .modal-content {
+        box-shadow: none;
+        /* Sin sombras */
+        border: none;
+        border-radius: 0;
+        width: 100%;
+        height: 100%;
+        /* Ocupa toda la pantalla del celular */
+        margin: 0;
+        padding: 20px;
+        overflow-y: auto;
+        /* Scroll si el formulario es largo */
+        max-width: none;
+    }
+
+    /* Botón de cerrar más grande en el modal para que sea fácil salir */
+    .close-btn {
+        background: #f1f2f6;
+        width: 40px;
+        height: 40px;
+    }
+
+    /* --- 4. AJUSTES GENERALES --- */
     .container {
         display: flex;
         flex-direction: column;
-        padding: 15px;
-        gap: 20px;
+        padding: 10px;
+        gap: 15px;
     }
 
     .main-panel {
-        margin-bottom: 20px;
         padding-right: 0;
+        overflow: visible;
     }
 
-    .stats-row {
-        gap: 10px;
-    }
-
-    .stat-card {
-        min-width: 45%;
-        padding: 15px;
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .action-card {
-        width: 100%;
-        flex-direction: row;
-    }
-
+    /* Calendario */
     .calendar-section {
-        padding: 15px;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        border-radius: 20px;
+        border-radius: 12px;
     }
 
     .weekdays,
     .days {
-        min-width: 650px;
+        min-width: 600px;
     }
 
-    .day {
-        min-height: 100px;
-    }
-
-    .booking-slot {
-        height: 26px;
-    }
-
-    .booking-bar {
-        font-size: 0.8rem;
-    }
-
-    .side-panel {
-        height: auto;
-        overflow: visible;
-    }
-
-    .modal-content {
-        width: 95%;
-        border-radius: 20px;
+    /* Textos cortados */
+    .booking-bar,
+    .booking-list-item div {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
     }
 
     .form-row {
         flex-direction: column;
         gap: 15px;
-    }
-
-    #btnLogout {
-        border-color: var(--danger);
-        color: var(--danger);
     }
 }

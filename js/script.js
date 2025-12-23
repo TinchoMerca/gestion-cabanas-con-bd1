@@ -54,13 +54,30 @@ auth.onAuthStateChanged((user) => {
 function pedirLogin() {
     Swal.fire({
         title: 'Acceso Familiar',
+        // Agregamos el Checkbox en el HTML del alerta
         html: `
             <input type="email" id="loginEmail" class="swal2-input" placeholder="Correo">
             <input type="password" id="loginPass" class="swal2-input" placeholder="Contraseña">
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px;">
+                <input type="checkbox" id="showPass" style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="showPass" style="cursor: pointer; font-size: 0.9rem; color: #555;">Mostrar contraseña</label>
+            </div>
         `,
         confirmButtonText: 'Entrar',
         allowOutsideClick: false,
         allowEscapeKey: false,
+        // didOpen se ejecuta apenas se abre la ventana
+        didOpen: () => {
+            const loginPass = Swal.getPopup().querySelector('#loginPass');
+            const showPass = Swal.getPopup().querySelector('#showPass');
+            
+            // Escuchamos el click en el checkbox
+            showPass.addEventListener('change', () => {
+                // Si está marcado, mostramos texto. Si no, mostramos password (puntos)
+                loginPass.type = showPass.checked ? 'text' : 'password';
+            });
+        },
         preConfirm: () => {
             const email = Swal.getPopup().querySelector('#loginEmail').value;
             const password = Swal.getPopup().querySelector('#loginPass').value;
@@ -70,14 +87,13 @@ function pedirLogin() {
             return { email: email, password: password };
         }
     }).then((result) => {
-        // Intentar loguear en Firebase
         auth.signInWithEmailAndPassword(result.value.email, result.value.password)
             .then(() => {
                 Toast.fire({ icon: 'success', title: '¡Bienvenido!' });
             })
             .catch((error) => {
                 Swal.fire({ icon: 'error', title: 'Error', text: 'Datos incorrectos' })
-                    .then(() => pedirLogin()); // Volver a pedir si falla
+                    .then(() => pedirLogin());
             });
     });
 }

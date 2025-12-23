@@ -841,7 +841,66 @@ select:focus {
 }
 
 /* =========================================
-   7. RESPONSIVE MOBILE
+    SECCIÓN DE AVISOS
+   ========================================= */
+.alerts-section {
+    background: white;
+    padding: 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    /* No le ponemos altura fija para que crezca según los avisos */
+}
+
+.alerts-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alert-card {
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    transition: transform 0.2s;
+}
+.alert-card:hover { transform: translateX(3px); }
+
+/* Tipos de Alerta */
+.alert-in {
+    background: #e8f5e9; /* Fondo verde suave */
+    border-left: 5px solid #2ecc71;
+    color: #27ae60;
+}
+.alert-out {
+    background: #ffebee; /* Fondo rojo suave */
+    border-left: 5px solid #ff7675;
+    color: #d63031;
+}
+.alert-empty {
+    background: #f1f2f6;
+    color: #a4b0be;
+    text-align: center;
+    justify-content: center;
+    font-weight: 400;
+    border: 1px dashed #ccc;
+}
+
+/* Reducir un poco la altura de las notas para que quepan los avisos */
+.notes-section {
+    height: 250px; /* Antes era 350px */
+}
+
+/* =========================================
+    7. RESPONSIVE MOBILE
    ========================================= */
 @media (max-width: 768px) {
     body {

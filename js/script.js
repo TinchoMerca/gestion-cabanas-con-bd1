@@ -136,6 +136,7 @@ function iniciarApp() {
         renderCalendar();
         renderBookingList();
         updateGuestHistory();
+        renderDailyAlerts();
     }, (error) => {
         console.error("Error al leer datos:", error);
         // Si da error de permisos, es que no está logueado
@@ -409,3 +410,48 @@ function exportToPDF() {
 function calculateTotalPreview() { const start = document.getElementById('checkIn').value; const end = document.getElementById('checkOut').value; const price = document.getElementById('pricePerNight').value; if (start && end && price) { const total = calculateNights(start, end) * price; document.getElementById('totalPreview').innerText = `Total estimado: $${total.toLocaleString()}`; } }
 function calculateNights(start, end) { const d1 = new Date(start); const d2 = new Date(end); return Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24))); }
 function formatDate(date) { return date.toISOString().split('T')[0]; }
+
+// Función para mostrar Avisos del Día (Check-in / Check-out)
+function renderDailyAlerts() {
+    const todayStr = formatDate(new Date()); // Fecha de hoy real (YYYY-MM-DD)
+    const container = document.getElementById('dailyAlerts');
+    
+    // Buscar Entradas (Start == Hoy)
+    const checkIns = bookings.filter(b => b.start === todayStr);
+    
+    // Buscar Salidas (End == Hoy)
+    const checkOuts = bookings.filter(b => b.end === todayStr);
+
+    let html = "";
+
+    // Crear tarjetas de Entradas
+    checkIns.forEach(b => {
+        html += `
+        <div class="alert-card alert-in" onclick="editBooking('${b.id}')" style="cursor:pointer">
+            <i class="fas fa-suitcase-rolling"></i>
+            <div>
+                <div><strong>Entra:</strong> ${b.guest.split(' ')[0]}</div>
+                <small>${b.cabin}</small>
+            </div>
+        </div>`;
+    });
+
+    // Crear tarjetas de Salidas
+    checkOuts.forEach(b => {
+        html += `
+        <div class="alert-card alert-out" onclick="editBooking('${b.id}')" style="cursor:pointer">
+            <i class="fas fa-sign-out-alt"></i>
+            <div>
+                <div><strong>Sale:</strong> ${b.guest.split(' ')[0]}</div>
+                <small>${b.cabin}</small>
+            </div>
+        </div>`;
+    });
+
+    // Si no hay nada
+    if (html === "") {
+        html = `<div class="alert-card alert-empty">😴 Sin movimientos hoy</div>`;
+    }
+
+    container.innerHTML = html;
+}

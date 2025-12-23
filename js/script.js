@@ -226,6 +226,8 @@ function renderCalendar() {
     daysContainer.innerHTML = daysHTML;
     calculateMonthlyStats();
     renderBookingList();
+
+    document.getElementById('appLoader').style.display = 'none';
 }
 
 function changeMonth(direction) { currentDate.setMonth(currentDate.getMonth() + direction); renderCalendar(); }

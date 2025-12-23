@@ -29,6 +29,29 @@
     --radius: 16px;
 }
 
+/* =========================================
+   SCROLLBAR PERSONALIZADO
+   ========================================= */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #dcdde1;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary);
+}
+
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg-body);
@@ -42,7 +65,7 @@ body {
 }
 
 /* =========================================
-   2. HEADER CORREGIDO
+   2. HEADER
    ========================================= */
 header {
     background: rgba(255, 255, 255, 0.95);
@@ -52,12 +75,9 @@ header {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    /* --- CORRECCIÓN DE SOLAPAMIENTO --- */
     position: sticky;
-    /* Se queda fijo arriba */
     top: 0;
     z-index: 1000;
-    /* Asegura que esté por encima de todo */
     border-bottom: 1px solid var(--border);
 }
 
@@ -93,24 +113,19 @@ header {
     color: var(--text-light);
 }
 
-/* --- CORRECCIÓN DE LOGO --- */
 .brand {
     justify-self: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Centrado horizontal */
     justify-content: center;
-    /* Centrado vertical */
     color: var(--primary);
     line-height: 1.2;
-    /* Mejora el espaciado del texto */
 }
 
 .brand i {
     font-size: 2rem;
     margin-bottom: 5px;
-    /* Espacio entre icono y texto */
     background: -webkit-linear-gradient(45deg, #4e54c8, #8f94fb);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -166,7 +181,6 @@ header {
     grid-template-columns: 3fr 1fr;
     gap: 25px;
     padding: 30px;
-    /* Un poco más de aire */
     flex: 1;
     overflow: hidden;
     max-width: 1600px;
@@ -182,7 +196,6 @@ header {
     overflow-y: auto;
     padding-right: 5px;
     padding-top: 5px;
-    /* Espacio extra para el hover */
     scrollbar-width: thin;
 }
 
@@ -205,7 +218,6 @@ header {
     border: 1px solid white;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     z-index: 1;
-    /* Asegura orden correcto */
 }
 
 .stat-card:hover {
@@ -328,12 +340,10 @@ header {
     color: white;
 }
 
-/* --- CORRECCIÓN DE FILTRO --- */
 .filter-box {
     display: flex;
     align-items: center;
     gap: 10px;
-    /* Separa el icono del select */
 }
 
 .filter-box select {
@@ -465,7 +475,6 @@ header {
     margin: 0 1px;
 }
 
-/* Colores de Barras */
 .bg-paid {
     background: var(--success-gradient);
 }
@@ -566,7 +575,6 @@ textarea {
     color: #5c521a;
 }
 
-/* --- CORRECCIÓN DE ESTADOS (COLORES FALTANTES) --- */
 .mini-legend {
     background: white;
     padding: 20px;
@@ -597,7 +605,6 @@ textarea {
     display: inline-block;
 }
 
-/* Aquí definimos los colores de los puntitos de la leyenda */
 .dot.paid {
     background: var(--success-gradient);
 }
@@ -639,7 +646,7 @@ textarea {
 }
 
 /* =========================================
-   6. MODAL CON GLASSMORPHISM
+   6. MODAL
    ========================================= */
 .modal {
     display: none;
@@ -653,7 +660,6 @@ textarea {
     justify-content: center;
     align-items: center;
     z-index: 2000;
-    /* Z-Index mayor que el header */
 }
 
 .modal-content {
@@ -790,6 +796,7 @@ select:focus {
     border-top: 1px solid var(--border);
 }
 
+/* ESTILOS DE BOTONES DEFAULT (DESKTOP) */
 .btn {
     border: none;
     padding: 12px 25px;
@@ -828,14 +835,13 @@ select:focus {
 }
 
 /* =========================================
-    SECCIÓN DE AVISOS
+   SECCIÓN DE AVISOS
    ========================================= */
 .alerts-section {
     background: white;
     padding: 20px;
     border-radius: var(--radius);
     box-shadow: var(--shadow-soft);
-    /* No le ponemos altura fija para que crezca según los avisos */
 }
 
 .alerts-section h3 {
@@ -864,17 +870,14 @@ select:focus {
     transform: translateX(3px);
 }
 
-/* Tipos de Alerta */
 .alert-in {
     background: #e8f5e9;
-    /* Fondo verde suave */
     border-left: 5px solid #2ecc71;
     color: #27ae60;
 }
 
 .alert-out {
     background: #ffebee;
-    /* Fondo rojo suave */
     border-left: 5px solid #ff7675;
     color: #d63031;
 }
@@ -888,64 +891,58 @@ select:focus {
     border: 1px dashed #ccc;
 }
 
-/* Reducir un poco la altura de las notas para que quepan los avisos */
 .notes-section {
     height: 250px;
-    /* Antes era 350px */
 }
 
 /* =========================================
-    7. RESPONSIVE MOBILE (DISEÑO LIMPIO)
+   7. RESPONSIVE MOBILE (CORREGIDO)
    ========================================= */
 @media (max-width: 768px) {
 
-    html, body {
-        height: auto !important; /* Permite que la página crezca */
-        min-height: 100vh;       /* Al menos el alto de la pantalla */
-        overflow-y: scroll !important; /* ¡OBLIGA al scroll vertical! */
-        overflow-x: hidden;      /* Evita scroll horizontal en la página */
-        position: static !important; /* Evita que se quede fija */
+    html,
+    body {
+        height: auto !important;
+        min-height: 100vh;
+        overflow-y: scroll !important;
+        overflow-x: hidden;
+        position: static !important;
     }
 
-    /* 2. CONTENEDORES FLUIDOS */
     .container {
         display: flex;
         flex-direction: column;
         padding: 10px;
         gap: 15px;
-        height: auto !important; /* Importante: deja de limitar la altura */
-        overflow: visible !important; /* Deja que el contenido se salga */
+        height: auto !important;
+        overflow: visible !important;
     }
 
-    .main-panel, .side-panel { 
-        padding-right: 0; 
-        overflow: visible !important; /* No scrollea internamente, scrollea la página */
-        height: auto !important; 
+    .main-panel,
+    .side-panel {
+        padding-right: 0;
+        overflow: visible !important;
+        height: auto !important;
         max-height: none !important;
     }
 
-    /* --- 1. HEADER (LOGO + BOTONES / BUSCADOR ABAJO) --- */
+    /* HEADER MOVILE */
     header {
         display: flex;
         flex-wrap: wrap;
-        /* Permite que los elementos bajen si no entran */
         justify-content: space-between;
-        /* Separa Logo (Izq) de Botones (Der) */
         align-items: center;
         padding: 10px 15px;
         gap: 10px;
         height: auto;
         box-shadow: none;
-        /* Sin sombra en el header */
         border-bottom: 1px solid #eee;
         position: relative;
     }
 
-    /* Izquierda: Logo */
     .brand {
         order: 1;
         width: auto;
-        /* Ocupa solo lo necesario */
         flex-direction: row;
         margin: 0;
         gap: 8px;
@@ -964,9 +961,6 @@ select:focus {
         display: none;
     }
 
-    /* Ocultamos subtítulo para ahorrar espacio */
-
-    /* Derecha: Botones (Logout y PDF) */
     .header-actions {
         order: 2;
         width: auto;
@@ -976,26 +970,20 @@ select:focus {
     .header-actions .btn-outline {
         width: 35px;
         height: 35px;
-        /* Botones más compactos */
         font-size: 1rem;
         flex: none;
-        /* No se estiran */
     }
 
-    /* Abajo: Buscador (Lupa) */
     .search-bar {
         order: 3;
         width: 100%;
-        /* Ocupa todo el ancho */
         margin-top: 5px;
         padding: 8px 15px;
-        /* Más chico, no muy grande */
         height: 40px;
         background-color: #f5f5f5;
     }
 
-    /* --- 2. ELIMINAR SOMBRAS ("FLAT DESIGN") --- */
-    /* Quitamos sombras de tarjetas para que se vea limpio */
+    /* FLAT DESIGN MOBILE */
     .stat-card,
     .calendar-section,
     .notes-section,
@@ -1003,55 +991,94 @@ select:focus {
     .booking-list-item {
         box-shadow: none !important;
         border: 1px solid #eee;
-        /* Borde suave en vez de sombra */
     }
 
-    /* --- 3. MODAL (PANTALLA BLANCA COMPLETA - SIN SOMBRA NEGRA) --- */
+    /* MODAL MOBILE (Pantalla Blanca) */
     .modal {
         background-color: #ffffff;
-        /* Fondo BLANCO sólido (Adiós sombra negra) */
         z-index: 9999;
         align-items: flex-start;
-        /* Empieza arriba */
         padding: 0;
     }
 
     .modal-content {
         box-shadow: none;
-        /* Sin sombras */
         border: none;
         border-radius: 0;
         width: 100%;
         height: 100%;
-        /* Ocupa toda la pantalla del celular */
         margin: 0;
         padding: 20px;
         overflow-y: auto;
-        /* Scroll si el formulario es largo */
         max-width: none;
     }
 
-    /* Botón de cerrar más grande en el modal para que sea fácil salir */
     .close-btn {
         background: #f1f2f6;
         width: 40px;
         height: 40px;
     }
 
-    /* --- 4. AJUSTES GENERALES --- */
-    .container {
+    /* --------------------------------------------------------
+       BOTONES DEL MODAL EN MÓVIL (CORREGIDO AQUÍ ADENTRO)
+    -------------------------------------------------------- */
+    .modal-footer {
         display: flex;
         flex-direction: column;
-        padding: 10px;
-        gap: 15px;
+        /* Apilamos los bloques verticalmente */
+        gap: 12px;
+        /* Espacio vertical entre la fila de arriba y el botón de borrar */
+        padding: 20px 15px;
     }
 
-    .main-panel {
-        padding-right: 0;
-        overflow: visible;
+    /* 1. Contenedor de los botones "Cancelar" y "Guardar" */
+    /* Seleccionamos el DIV que los envuelve en el HTML */
+    .modal-footer>div:not(#btnDeleteModal) {
+        display: flex;
+        width: 100%;
+        gap: 12px;
+        /* Espacio horizontal entre Cancelar y Guardar */
+        order: 1;
+        /* Asegura que este bloque vaya primero (arriba) */
     }
 
-    /* Calendario */
+    /* Estilo para que Cancelar y Guardar se dividan el espacio 50% */
+    .modal-footer .btn-secondary,
+    .modal-footer .btn-save {
+        flex: 1;
+        /* Crecen para ocupar el mismo espacio */
+        width: 50%;
+        /* Base de cálculo */
+        margin: 0 !important;
+        /* Resetea márgenes de desktop */
+    }
+
+    /* 2. Botón Borrar (Abajo y Ancho Completo) */
+    #btnDeleteModal {
+        width: 100%;
+        order: 2;
+        /* Asegura que vaya segundo (abajo) */
+        margin: 0 !important;
+        /* Resetea márgenes viejos */
+        /* Mantenemos sus colores originales */
+        background-color: #ffebee !important;
+        color: #d63031 !important;
+        border: 1px solid #ff7675 !important;
+    }
+
+    /* Estilo base general para la altura y centrado en móvil */
+    .modal-footer button {
+        height: 55px !important;
+        /* Altura considerable solicitada */
+        font-size: 1rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* -------------------------------------------------------- */
+
     .calendar-section {
         overflow-x: auto;
         border-radius: 12px;
@@ -1062,7 +1089,6 @@ select:focus {
         min-width: 600px;
     }
 
-    /* Textos cortados */
     .booking-bar,
     .booking-list-item div {
         white-space: nowrap;
@@ -1075,48 +1101,50 @@ select:focus {
         flex-direction: column;
         gap: 15px;
     }
+
+    .form-body {
+        padding: 15px;
+    }
+
+    /* Ajuste de padding form */
 }
 
 /* =========================================
    8. AJUSTE DE ALERTAS (SWEETALERT) EN MÓVIL
    ========================================= */
 @media (max-width: 768px) {
-    
-    /* Contenedor de la alerta más compacto */
     div:where(.swal2-container) div:where(.swal2-popup) {
-        padding: 10px !important; /* Menos relleno interno */
-        width: 90% !important; /* Que no toque los bordes */
-        max-width: 350px !important; /* Ancho máximo controlado */
+        padding: 10px !important;
+        width: 90% !important;
+        max-width: 350px !important;
     }
 
-    /* Título más chico */
     div:where(.swal2-container) .swal2-title {
         font-size: 1.2rem !important;
         padding: 10px 0 !important;
     }
 
-    /* Inputs (Login) más compactos */
     div:where(.swal2-container) .swal2-input {
-        height: 35px !important; /* Altura reducida */
+        height: 35px !important;
         padding: 0 10px !important;
-        margin: 5px auto !important; /* Menos separación entre inputs */
+        margin: 5px auto !important;
         font-size: 0.9rem !important;
     }
 
-    /* Botón de confirmar más chico */
     div:where(.swal2-container) .swal2-actions {
         margin-top: 10px !important;
     }
+
     div:where(.swal2-container) .swal2-styled {
         padding: 8px 20px !important;
         font-size: 0.9rem !important;
     }
 
-    /* Checkbox "Mostrar contraseña" */
     #showPass {
-        width: 16px !important; 
+        width: 16px !important;
         height: 16px !important;
     }
+
     label[for="showPass"] {
         font-size: 0.8rem !important;
     }

@@ -743,3 +743,138 @@ select:focus {
         height: auto;
     }
 }
+
+/* =========================================
+    MEDIA QUERIES (Versión Móvil)
+========================================= */
+
+@media (max-width: 768px) {
+
+    /* --- 1. AJUSTE GENERAL DEL BODY --- */
+    body {
+        height: auto; /* Permitir scroll natural en el cuerpo */
+        overflow-x: hidden; /* Evitar scroll lateral de toda la pagina */
+        overflow-y: auto;
+    }
+
+    /* --- 2. HEADER COMPACTO --- */
+    header {
+        display: flex;
+        flex-direction: column;
+        padding: 10px 15px;
+        gap: 10px;
+        min-height: auto;
+    }
+
+    /* Reordenamos: Logo arriba, Botones al medio, Buscador abajo */
+    .brand {
+        flex-direction: row;
+        gap: 10px;
+        margin-bottom: 5px;
+    }
+    .brand i { font-size: 1.4rem; }
+    .brand-text h1 { font-size: 1rem; }
+    .brand-text p { display: none; } /* Ocultamos el subtítulo para ahorrar espacio */
+
+    .header-actions {
+        width: 100%;
+        justify-content: space-between; /* Botones expandidos */
+    }
+    .header-actions .btn-outline {
+        flex: 1; /* Botones del mismo tamaño */
+        height: 35px;
+    }
+
+    .search-bar {
+        width: 100%; /* Buscador ancho completo */
+        margin: 0;
+    }
+    .search-bar:focus-within { width: 100%; }
+
+    /* --- 3. LAYOUT PRINCIPAL (Columna única) --- */
+    .container {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        height: auto;
+        overflow: visible;
+    }
+
+    .main-panel {
+        padding-right: 0;
+        overflow: visible;
+        margin-bottom: 20px;
+    }
+
+    /* Tarjetas de estadísticas más compactas */
+    .stats-row {
+        gap: 8px;
+    }
+    .stat-card {
+        min-width: 45%; /* Dos por fila */
+        padding: 10px;
+        flex-direction: column; /* Icono arriba, texto abajo */
+        text-align: center;
+        gap: 5px;
+    }
+    .stat-card strong { font-size: 1rem; }
+    .action-card {
+        width: 100%; /* Botón "Nueva Reserva" ocupa todo el ancho */
+        flex-direction: row;
+        padding: 12px;
+    }
+
+    /* --- 4. SOLUCIÓN DEL CALENDARIO (Scroll Horizontal) --- */
+    .calendar-section {
+        padding: 10px;
+        /* Esto es la clave: */
+        overflow-x: auto; /* Habilita scroll lateral solo aquí */
+        -webkit-overflow-scrolling: touch; /* Scroll suave en iPhone */
+    }
+
+    /* Barra de navegación del mes */
+    .calendar-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .month-nav { justify-content: space-between; }
+    .filter-box select { width: 100%; text-align: center; }
+
+    /* Forzamos un ancho mínimo para que los días NO se aplasten */
+    .weekdays, .days {
+        min-width: 600px; /* Ancho mínimo virtual: el usuario desliza para ver */
+    }
+
+    /* Ajuste de celdas para dedos táctiles */
+    .day {
+        min-height: 90px; /* Un poco más bajos */
+    }
+    .booking-slot {
+        height: 20px; /* Un poco más altos para tocar fácil */
+    }
+    .booking-bar {
+        font-size: 0.7rem; /* Letra un poco más grande para leer */
+    }
+
+    /* --- 5. PANELES LATERALES (Pasan abajo) --- */
+    .side-panel {
+        height: auto;
+        overflow: visible;
+        gap: 15px;
+    }
+    .notes-section {
+        height: 200px; /* Notas más cortas */
+    }
+
+    /* --- 6. MODAL (Ajuste a pantalla completa) --- */
+    .modal-content {
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto; /* Scroll dentro del modal si es muy alto */
+    }
+    .form-row {
+        flex-direction: column; /* Inputs uno debajo del otro */
+        gap: 10px;
+    }
+}

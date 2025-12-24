@@ -1142,3 +1142,10 @@ select:focus {
         font-size: 0.8rem !important;
     }
 }
+
+/* =========================================
+    ARREGLO DE ALERTAS (SWEETALERT) ENCIMA DEL MODAL
+   ========================================= */
+div:where(.swal2-container) {
+    z-index: 10000 !important; /* ¡Mucho más alto que el 2000 del modal! */
+}

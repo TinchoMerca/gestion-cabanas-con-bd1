@@ -71,7 +71,7 @@ function pedirLogin() {
         didOpen: () => {
             const loginPass = Swal.getPopup().querySelector('#loginPass');
             const showPass = Swal.getPopup().querySelector('#showPass');
-            
+
             // Escuchamos el click en el checkbox
             showPass.addEventListener('change', () => {
                 // Si está marcado, mostramos texto. Si no, mostramos password (puntos)
@@ -156,6 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCalendar();
 });
 
+// --- [NUEVO] Función para arreglar el bug de las 21hs ---
+function getLocalToday() {
+    const d = new Date();
+    // Ajustamos manualmente restando el desfase de zona horaria
+    const offset = d.getTimezoneOffset();
+    const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+    return localDate.toISOString().split('T')[0];
+}
+
 function renderCalendar() {
     const filter = cabinFilter.value;
     currentDate.setDate(1);
@@ -172,10 +181,15 @@ function renderCalendar() {
 
     const allCabins = ["Cabaña 1", "Cabaña 2", "Cabaña 3", "Cabaña 4", "Cabaña 5"];
 
+    // Usamos la nueva función para saber qué día es hoy realmente
+    const todayReal = getLocalToday();
+
     for (let i = 1; i <= lastDay; i++) {
         const dateObj = new Date(year, month, i);
         const dateStr = formatDate(dateObj);
-        const isToday = dateStr === formatDate(new Date()) ? "today" : "";
+
+        // CORREGIDO: Usamos todayReal en vez de formatDate(new Date())
+        const isToday = dateStr === todayReal ? "today" : "";
         let slotsHTML = "";
 
         // Si no hay reservas cargadas (no login), esto simplemente no mostrará nada
@@ -227,7 +241,9 @@ function renderCalendar() {
     calculateMonthlyStats();
     renderBookingList();
 
-    document.getElementById('appLoader').style.display = 'none';
+    if (document.getElementById('appLoader')) {
+        document.getElementById('appLoader').style.display = 'none';
+    }
 }
 
 function changeMonth(direction) { currentDate.setMonth(currentDate.getMonth() + direction); renderCalendar(); }
@@ -415,12 +431,13 @@ function formatDate(date) { return date.toISOString().split('T')[0]; }
 
 // Función para mostrar Avisos del Día (Check-in / Check-out)
 function renderDailyAlerts() {
-    const todayStr = formatDate(new Date()); // Fecha de hoy real (YYYY-MM-DD)
+    // CORREGIDO: Usamos la hora local para filtrar
+    const todayStr = getLocalToday();
     const container = document.getElementById('dailyAlerts');
-    
+
     // Buscar Entradas (Start == Hoy)
     const checkIns = bookings.filter(b => b.start === todayStr);
-    
+
     // Buscar Salidas (End == Hoy)
     const checkOuts = bookings.filter(b => b.end === todayStr);
 
